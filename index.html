@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Live Patient Dashboard</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #1e1e1e; color: #ffffff; padding: 40px; }
+        .dashboard { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 600px; margin: 0 auto; }
+        .card { background: #2d2d2d; padding: 20px; border-radius: 10px; text-align: center; border-top: 4px solid #007acc; }
+        .value { font-size: 3em; font-weight: bold; margin: 10px 0; color: #4fc3f7; }
+        .label { color: #aaaaaa; text-transform: uppercase; letter-spacing: 1px; font-size: 0.9em; }
+        .timestamp { text-align: center; color: #888; margin-bottom: 30px; }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center;">Secure Telemetry Dashboard</h1>
+    <div class="timestamp" id="timestamp">Waiting for data...</div>
+    
+    <div class="dashboard">
+        <div class="card">
+            <div class="label">Heart Rate</div>
+            <div class="value"><span id="hr">--</span> <span style="font-size: 0.4em; color: #888;">bpm</span></div>
+        </div>
+        <div class="card">
+            <div class="label">Blood Pressure</div>
+            <div class="value" id="bp">--/--</div>
+        </div>
+        <div class="card">
+            <div class="label">SpO2</div>
+            <div class="value"><span id="spo2">--</span> <span style="font-size: 0.4em; color: #888;">%</span></div>
+        </div>
+        <div class="card">
+            <div class="label">Temperature</div>
+            <div class="value"><span id="temp">--</span> <span style="font-size: 0.4em; color: #888;">°C</span></div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchLiveData() {
+            try {
+                // The query string (?t=...) prevents the browser from caching old data
+                const response = await fetch('live_data.json?t=' + new Date().getTime());
+                const data = await response.json();
+                
+                document.getElementById('hr').innerText = data.heart_rate_bpm;
+                document.getElementById('bp').innerText = data.blood_pressure;
+                document.getElementById('spo2').innerText = data.spo2_percent;
+                document.getElementById('temp').innerText = data.temp_c;
+                document.getElementById('timestamp').innerText = "Patient: " + data.patient_id + " | Last updated: " + data.timestamp;
+            } catch (error) {
+                console.log("Waiting for data stream...");
+            }
+        }
+        
+        // Fetch new data every 1000 milliseconds (1 second)
+        setInterval(fetchLiveData, 1000);
+    </script>
+</body>
+</html>
